@@ -1,0 +1,25 @@
+{
+  "name": "mlx90363",
+  "version": "0.0.0",
+  "description": "Node.js API for manipulating and parsing MLX90363 data packets",
+  "main": "dist/MLX90363.js",
+  "types": "dist/MLX90363.d.ts",
+  "files": [
+    "dist/MLX90363.js",
+    "dist/MLX90363.d.ts"
+  ],
+  "repository": "https://github.com/cinderblock/node-MLX90363.git",
+  "author": "Cameron Tacklind <cameron@tacklind.com> (http://cameron.tacklind.com)",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^11.11.3",
+    "prettier": "^1.16.4",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {}
+}
