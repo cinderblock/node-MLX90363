@@ -135,6 +135,7 @@ export function parseData(data: Buffer) {
       data.copy(b);
       for (let i = 0; i < 3; i++)
         if (b[i * 2 + 1] & 0b100000) b[i * 2 + 1] |= 0b11000000;
+        else b[i * 2 + 1] &= 0x3f;
 
       return {
         crc,
