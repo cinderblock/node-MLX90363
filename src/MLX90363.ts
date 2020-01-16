@@ -1,4 +1,7 @@
 // prettier-ignore
+/**
+ * Matches datasheet
+ */
 const cba_256_TAB = [
   0x00, 0x2f, 0x5e, 0x71, 0xbc, 0x93, 0xe2, 0xcd,
   0x57, 0x78, 0x09, 0x26, 0xeb, 0xc4, 0xb5, 0x9a,
@@ -35,6 +38,9 @@ const cba_256_TAB = [
 ];
 
 // prettier-ignore
+/**
+ * Matches datasheet
+ */
 export const EEchallenge = [
   17485, 31053, 57190, 57724,  7899, 53543, 26763, 12528,
   38105, 51302, 16209, 24847, 13134, 52339, 14530, 18350,
@@ -59,6 +65,9 @@ export enum Marker {
 }
 
 // prettier-ignore
+/**
+ * Matches datasheet
+ */
 export enum Opcode {
   // Following the format from the datasheet, they organized all the opcodes as
   // Outgoing                or Incoming
