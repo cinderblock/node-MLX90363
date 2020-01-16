@@ -119,10 +119,9 @@ export type Message<M extends Marker = Marker, T extends {} = {}> = {
 } & T &
   CRC;
 
-export type NormalMessage<
-  M extends Marker.Alpha | Marker.AlphaBeta | Marker.XYZ,
-  T extends {}
-> = Message<
+export type NormalMarker = Marker.Alpha | Marker.AlphaBeta | Marker.XYZ;
+
+export type NormalMessage<M extends NormalMarker, T extends {}> = Message<
   M,
   {
     roll: number;
