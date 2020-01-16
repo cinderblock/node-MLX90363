@@ -147,12 +147,23 @@ export type AlphaBetaMessage = NormalMessage<
   }
 >;
 
+export type Components = {
+  x: number;
+  y: number;
+  z: number;
+};
+
 export type XYZMessage = NormalMessage<
   Marker.XYZ,
-  {
-    x: number;
-    y: number;
-    z: number;
+  Components & {
+    /**
+     * What we expect the device to calculate internally were it in different modes.
+     *
+     * Assumes default map (XYZ) and trimming parameters (1.2, 1.2, 1). (Subject to change)
+     *
+     * To calculate yourself, use `computeInternal()`, `computeAlpha()`, or `computeAlphaBeta()` with `mapXYZ()`
+     */
+    computed: ReturnType<typeof computeInternal>;
   }
 >;
 
@@ -282,14 +293,19 @@ export function parseData(data: Buffer): Messages {
         else b[i * 2 + 1] &= 0x3f;
       }
 
+      const components = {
+        x: b.readInt16LE(0),
+        y: b.readInt16LE(2),
+        z: b.readInt16LE(4),
+      };
+
       return {
         crc,
         roll,
         marker,
-        x: b.readInt16LE(0),
-        y: b.readInt16LE(2),
-        z: b.readInt16LE(4),
+        ...components,
         diagnosticStatus,
+        computed: computeInternal(components),
       };
     case Marker.Opcode:
       const opcode: Opcode = roll;
@@ -395,4 +411,98 @@ export function makePacket(data: Packet) {
 
   ret[7] = CRC(ret);
   return ret;
+}
+
+export enum MapXYZ {
+  XZY = 0,
+  XYZ = 1,
+  YZX = 2,
+  YXZ = 3, // Use mode 0 instead
+  ZXY = 4,
+  ZYX = 5,
+}
+
+export function mapXYZ(
+  { x, y, z }: Components,
+  map: MapXYZ = 0
+): [number, number, number] {
+  switch (map) {
+    default:
+      throw new TypeError('Wrong map');
+    case MapXYZ.XZY:
+      return [x, z, y];
+    case MapXYZ.XYZ:
+      return [x, y, z];
+    case MapXYZ.YZX:
+      return [y, z, x];
+    case MapXYZ.YXZ:
+      return [y, x, z];
+    case MapXYZ.ZXY:
+      return [z, x, y];
+    case MapXYZ.ZYX:
+      return [z, y, x];
+  }
+}
+
+export type Constants = { kAlpha: number; kBeta: number; kT: number };
+
+export const defaultConstants: Constants = { kAlpha: 1.2, kBeta: 1.2, kT: 1 };
+
+/**
+ * Compute Alpha and Alpha+Beta from raw component value.
+ *
+ * Should perfectly match internal computation on MLX90363
+ *
+ * @param param0 Raw analog component values
+ */
+export function computeInternal(
+  components: Components,
+  map: MapXYZ = 0,
+  constants = defaultConstants
+) {
+  const mapped = mapXYZ(components, map);
+  return {
+    alpha: computeAlpha(mapped),
+    alphaBeta: computeAlphaBeta(mapped, constants),
+  };
+}
+
+function scaleAngleToBits(angle: number, bits = 14): number {
+  // Make sure we're in the positive range
+  if (angle < 0) angle += Math.PI * 2;
+
+  // Scale to n bits
+  angle *= 2 ** bits / (Math.PI * 2);
+
+  // Make sure result is integer
+  return Math.floor(angle);
+}
+
+export function computeAlpha([B1, B2]:
+  | [number, number]
+  | [number, number, number]): number {
+  // From Datasheet
+  // let alpha = Math.atan2(B2, B1);
+
+  // From experimentation
+  let alpha = Math.atan2(-B1, -B2);
+
+  return scaleAngleToBits(alpha);
+}
+
+export function computeAlphaBeta(
+  [B1, B2, B3]: [number, number, number],
+  { kAlpha, kBeta, kT } = defaultConstants
+): { alpha: number; beta: number } {
+  // From Datasheet
+  const alphaNum = Math.sqrt((kAlpha * B3) ** 2 + (kT * B2) ** 2);
+  const betaNum = Math.sqrt((kBeta * B3) ** 2 + (kT * B1) ** 2);
+
+  let alpha = Math.atan2(alphaNum, B1);
+  let beta = Math.atan2(betaNum, B2);
+
+  return {
+    alpha: scaleAngleToBits(alpha),
+    beta: scaleAngleToBits(beta),
+  };
 }
