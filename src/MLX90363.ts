@@ -43,7 +43,7 @@ export const EEchallenge = [
 ];
 
 export function CRC(data: Buffer) {
-  if (data.length != 8) throw 'InvalidLength';
+  if (data.length != 8) throw new Error('InvalidLength');
 
   let crc = 0xff;
   for (let i = 0; i < 7; i++) crc = cba_256_TAB[data[i] ^ crc];
@@ -165,11 +165,10 @@ export function parseData(data: Buffer) {
         case Opcode.Reboot:
         case Opcode.Standby:
           // TODO: Parse these instead of throwing
-          throw 'This is data sent TO device...';
+          throw new Error('This is data sent TO device...');
 
         case Opcode.Get3Ready:
-          throw 'Not yet implemented';
-          return { crc, opcode, marker };
+          throw new Error('Not yet implemented');
 
         case Opcode.MemoryRead_Answer:
           return {
@@ -203,8 +202,7 @@ export function parseData(data: Buffer) {
         case Opcode.OscCounterStart_Acknowledge:
         case Opcode.OscCounterStopAck_CounterValue:
         case Opcode.StandbyAck:
-          throw 'Not yet implemented';
-          return { crc, opcode, marker };
+          throw new Error('Not yet implemented');
 
         case Opcode.Error_frame:
           const error: ErrorCode = data[0];
@@ -223,7 +221,7 @@ export function parseData(data: Buffer) {
           };
 
         default:
-          throw 'Invalid Opcode';
+          throw new Error('Invalid Opcode');
       }
   }
 }
