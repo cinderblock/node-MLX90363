@@ -101,7 +101,141 @@ export enum EECode {
   OddAddress = 8,
 }
 
-export function parseData(data: Buffer) {
+export interface CRC {
+  crc: boolean;
+}
+
+export type Message<M extends Marker = Marker, T extends {} = {}> = {
+  marker: M;
+} & T &
+  CRC;
+
+export type NormalMessage<
+  M extends Marker.Alpha | Marker.AlphaBeta | Marker.XYZ,
+  T extends {}
+> = Message<
+  M,
+  {
+    roll: number;
+    diagnosticStatus: DiagnosticStatus;
+  } & T
+>;
+
+export type AlphaMessage = NormalMessage<
+  Marker.Alpha,
+  {
+    vg: number;
+    alpha: number;
+  }
+>;
+
+export type AlphaBetaMessage = NormalMessage<
+  Marker.AlphaBeta,
+  {
+    vg: number;
+    alpha: number;
+    beta: number;
+  }
+>;
+
+export type XYZMessage = NormalMessage<
+  Marker.XYZ,
+  {
+    x: number;
+    y: number;
+    z: number;
+  }
+>;
+
+export type NormalMessages = AlphaMessage | AlphaBetaMessage | XYZMessage;
+
+export type ReceivedOpcodeMessage<
+  O extends Opcode,
+  T extends {} = {}
+> = Message<Marker.Opcode, { opcode: O } & T>;
+
+export type MemoryRead_AnswerMessage = ReceivedOpcodeMessage<
+  Opcode.MemoryRead_Answer,
+  {
+    data0: number;
+    data1: number;
+  }
+>;
+
+export type EEPROMWrite_ChallengeMessage = ReceivedOpcodeMessage<
+  Opcode.EEPROMWrite_Challenge,
+  {
+    challengeKey: number;
+  }
+>;
+
+export type EEReadAnswerMessage = ReceivedOpcodeMessage<Opcode.EEReadAnswer>;
+
+export type EEPROMWrite_StatusMessage = ReceivedOpcodeMessage<
+  Opcode.EEPROMWrite_Status,
+  {
+    code: EECode;
+  }
+>;
+
+export type Challenge__NOP_MISO_PacketMessage = ReceivedOpcodeMessage<
+  Opcode.Challenge__NOP_MISO_Packet,
+  {
+    key: number;
+    invertedKey: number;
+  }
+>;
+
+export type Diagnostics_AnswerMessage = ReceivedOpcodeMessage<
+  Opcode.Diagnostics_Answer
+>;
+
+export type OscCounterStart_AcknowledgeMessage = ReceivedOpcodeMessage<
+  Opcode.OscCounterStart_Acknowledge
+>;
+
+export type OscCounterStopAck_CounterValueMessage = ReceivedOpcodeMessage<
+  Opcode.OscCounterStopAck_CounterValue
+>;
+
+export type StandbyAckMessage = ReceivedOpcodeMessage<Opcode.StandbyAck>;
+
+export type Error_frameMessage = ReceivedOpcodeMessage<
+  Opcode.Error_frame,
+  {
+    error: ErrorCode;
+  }
+>;
+
+export type NothingToTransmitMessage = ReceivedOpcodeMessage<
+  Opcode.NothingToTransmit
+>;
+
+export type Ready_MessageMessage = ReceivedOpcodeMessage<
+  Opcode.Ready_Message,
+  {
+    hwVersion: number;
+    fwVersion: number;
+  }
+>;
+
+export type ReceivedOpcodeMessages =
+  | MemoryRead_AnswerMessage
+  | EEPROMWrite_ChallengeMessage
+  | EEReadAnswerMessage
+  | EEPROMWrite_StatusMessage
+  | Challenge__NOP_MISO_PacketMessage
+  | Diagnostics_AnswerMessage
+  | OscCounterStart_AcknowledgeMessage
+  | OscCounterStopAck_CounterValueMessage
+  | StandbyAckMessage
+  | Error_frameMessage
+  | NothingToTransmitMessage
+  | Ready_MessageMessage;
+
+export type Messages = NormalMessages | ReceivedOpcodeMessages;
+
+export function parseData(data: Buffer): Messages {
   const crc = CRC(data) == data[7];
 
   const marker: Marker = data[6] >> 6;
