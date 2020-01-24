@@ -413,8 +413,8 @@ export function makePacket(data: Packet) {
 }
 
 export enum MapXYZ {
-  XZY = 0,
-  XYZ = 1,
+  XYZ = 0,
+  XZY = 1,
   YZX = 2,
   YXZ = 3, // Use mode 0 instead
   ZXY = 4,
