@@ -484,7 +484,7 @@ export function computeAlpha([B1, B2]:
   // let alpha = Math.atan2(B2, B1);
 
   // From experimentation
-  let alpha = Math.atan2(-B1, -B2);
+  let alpha = Math.atan2(B1, B2);
 
   return scaleAngleToBits(alpha);
 }
