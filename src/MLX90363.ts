@@ -480,20 +480,13 @@ function scaleAngleToBits(angle: number, bits = 14): number {
 export function computeAlpha([B1, B2]:
   | [number, number]
   | [number, number, number]): number {
-  // From Datasheet
-  // let alpha = Math.atan2(B2, B1);
-
-  // From experimentation
-  let alpha = Math.atan2(B1, B2);
-
-  return scaleAngleToBits(alpha);
+  return scaleAngleToBits(Math.atan2(B2, B1));
 }
 
 export function computeAlphaBeta(
   [B1, B2, B3]: [number, number, number],
   { kAlpha, kBeta, kT } = defaultConstants
 ): { alpha: number; beta: number } {
-  // From Datasheet
   const alphaNum = Math.sqrt((kAlpha * B3) ** 2 + (kT * B2) ** 2);
   const betaNum = Math.sqrt((kBeta * B3) ** 2 + (kT * B1) ** 2);
 
