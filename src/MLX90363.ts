@@ -123,7 +123,7 @@ export enum EECode {
   WriteFail = 2,
   CRCWriteFail = 4,
   KeyInvalid = 6,
-  CallengeFail = 7,
+  ChallengeFail = 7,
   OddAddress = 8,
 }
 
