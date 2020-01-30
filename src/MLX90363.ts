@@ -48,6 +48,179 @@ export const EEchallenge = [
    6368,  5907, 31384, 63325,  3562, 19816,  6995,  3147,
 ];
 
+export enum NamedEEMemoryLocations {
+  /**
+   * XYZ Coordinates mapping
+   * @address 102A[2:0]
+   * @default 0
+   * @bits 3
+   * @writable true
+   */
+  MAPXYZ = 0x102a,
+
+  /**
+   * Enabling of 3D formula (Joystick)
+   * @address 102A[3]
+   * @default 0
+   * @bits 1
+   * @writable true
+   */
+  _3D = 0x102a,
+
+  /**
+   * Enabling of Signal Filter
+   * @address 102A[5:4]
+   * @default 0
+   * @bits 2
+   * @writable true
+   */
+  FILTER = 0x102a,
+
+  /**
+   * Electrical Gain Code Max
+   * @address 102E[15:8]
+   * @default 41
+   * @bits 8
+   * @writable true
+   */
+  VIRTUALGAINMAX = 0x102e,
+
+  /**
+   * Electrical Gain Code Min
+   * @address 102E[7:0]
+   * @default 0
+   * @bits 8
+   * @writable true
+   */
+  VIRTUALGAINMIN = 0x102e,
+
+  /**
+   * Magnetic Angle Formula Parameter
+   * @address 1022[15:0]
+   * @default 0
+   * @bits 16
+   * @writable true
+   */
+  KALPHA = 0x1022,
+
+  /**
+   * Magnetic Angle Formula Parameter
+   * @address 1024[15:0]
+   * @default 1.6
+   * @bits 16
+   * @writable true
+   */
+  KBETA = 0x1024,
+
+  /**
+   * + SEL_SMISM Magnetic Angle Formula Parameter
+   * @address 1032[15:0]
+   * @default 1
+   * @bits 16
+   * @writable true
+   */
+  SMISM = 0x1032,
+
+  /**
+   *
+   * @address 102C[8]
+   * @default
+   * @bits 1
+   * @writable false
+   */
+  ORTH_SEL = 0x102c,
+
+  /**
+   * Magnetic Angle Formula Parameter
+   * @address 1026[7:0]
+   * @default 0
+   * @bits 8
+   * @writable true
+   */
+  ORTH_B1B2 = 0x1026,
+
+  /**
+   * Magnetic Angle Formula Parameter
+   * @address 1030[15:0]
+   * @default 1
+   * @bits 16
+   * @writable true
+   */
+  KT = 0x1030,
+
+  /**
+   * Hysteresis Value (Alpha + Beta )
+   * @address 1028[15:8]
+   * @default "MLX"
+   * @bits 8
+   * @writable true
+   */
+  FHYST = 0x1028,
+
+  /**
+   * SCI Input Pins: EMC: Filter Bandwidth
+   * @address 1001[1:0]
+   * @default 1
+   * @bits 2
+   * @writable true
+   */
+  PINFILTER = 0x1001,
+
+  /**
+   * User Identification 0
+   * @address 103A[15:0]
+   * @default 1
+   * @bits 16
+   * @writable true
+   */
+  USERID0 = 0x103a,
+
+  /**
+   * User Identification 1
+   * @address 103C[15:0]
+   * @default 3
+   * @bits 16
+   * @writable true
+   */
+  USERID1 = 0x103c,
+
+  /**
+   * Freely usable by user
+   * @address 1018[15:0]
+   * @default 0
+   * @bits 40
+   * @writable true
+   */
+  FREE0 = 0x1018,
+
+  /**
+   * Freely usable by user
+   * @address 1026[15:8]
+   * @default 0
+   * @bits 40
+   * @writable true
+   */
+  FREE1 = 0x1026,
+
+  /**
+   * Freely usable by user
+   * @address 1028[7:0]
+   * @default 0
+   * @bits 40
+   * @writable true
+   */
+  FREE2 = 0x1028,
+
+  /**
+   * Freely usable by user
+   * @address 103E[7:0]
+   * @default 0
+   * @bits 40
+   * @writable true
+   */
+  FREE3 = 0x103e,
+}
+
 /**
  * Compute the CRC required for the first 7-bytes of an 8-byte Buffer.
  * @param data 8-byte MLX Data buffer to compute CRC for
