@@ -66,28 +66,45 @@ export enum Marker {
 
 // prettier-ignore
 /**
- * Matches datasheet
+ * Opcodes that we expect in Outgoing messages.
  */
-export enum Opcode {
-  // Following the format from the datasheet, they organized all the opcodes as
-  // Outgoing                or Incoming
+export enum OutgoingOpcode {
   GET1              = 0x13,
   GET2              = 0x14,
-  GET3              = 0x15,  Get3Ready                      = 0x2d,
-  MemoryRead        = 0x01,  MemoryRead_Answer              = 0x02,
-  EEPROMWrite       = 0x03,  EEPROMWrite_Challenge          = 0x04,
-  EEChallengeAns    = 0x05,  EEReadAnswer                   = 0x28,
-  EEReadChallenge   = 0x0f,  EEPROMWrite_Status             = 0x0e,
-  NOP__Challenge    = 0x10,  Challenge__NOP_MISO_Packet     = 0x11,
-  DiagnosticDetails = 0x16,  Diagnostics_Answer             = 0x17,
-  OscCounterStart   = 0x18,  OscCounterStart_Acknowledge    = 0x19,
-  OscCounterStop    = 0x1a,  OscCounterStopAck_CounterValue = 0x1b,
+  GET3              = 0x15,
+  MemoryRead        = 0x01,
+  EEPROMWrite       = 0x03,
+  EEChallengeAns    = 0x05,
+  EEReadChallenge   = 0x0f,
+  NOP__Challenge    = 0x10,
+  DiagnosticDetails = 0x16,
+  OscCounterStart   = 0x18,
+  OscCounterStop    = 0x1a,
   Reboot            = 0x2f,
-  Standby           = 0x31,  StandbyAck                     = 0x32,
-                             Error_frame                    = 0x3d,
-                             NothingToTransmit              = 0x3e,
-                             Ready_Message                  = 0x2c,
+  Standby           = 0x31,
 }
+
+// prettier-ignore
+/**
+ * Opcodes that we expect in Incoming messages.
+ */
+export enum IncomingOpcode {
+  Get3Ready                      = 0x2d,
+  MemoryRead_Answer              = 0x02,
+  EEPROMWrite_Challenge          = 0x04,
+  EEReadAnswer                   = 0x28,
+  EEPROMWrite_Status             = 0x0e,
+  Challenge__NOP_MISO_Packet     = 0x11,
+  Diagnostics_Answer             = 0x17,
+  OscCounterStart_Acknowledge    = 0x19,
+  OscCounterStopAck_CounterValue = 0x1b,
+  StandbyAck                     = 0x32,
+  Error_frame                    = 0x3d,
+  NothingToTransmit              = 0x3e,
+  Ready_Message                  = 0x2c,
+}
+
+export type Opcode = OutgoingOpcode | IncomingOpcode;
 
 export enum DiagnosticStatus {
   Init,
@@ -169,12 +186,12 @@ export type XYZMessage = NormalMessage<
 export type NormalMessages = AlphaMessage | AlphaBetaMessage | XYZMessage;
 
 export type ReceivedOpcodeMessage<
-  O extends Opcode,
+  O extends IncomingOpcode,
   T extends {} = {}
 > = Message<Marker.Opcode, { opcode: O } & T>;
 
 export type MemoryRead_AnswerMessage = ReceivedOpcodeMessage<
-  Opcode.MemoryRead_Answer,
+  IncomingOpcode.MemoryRead_Answer,
   {
     data0: number;
     data1: number;
@@ -182,23 +199,25 @@ export type MemoryRead_AnswerMessage = ReceivedOpcodeMessage<
 >;
 
 export type EEPROMWrite_ChallengeMessage = ReceivedOpcodeMessage<
-  Opcode.EEPROMWrite_Challenge,
+  IncomingOpcode.EEPROMWrite_Challenge,
   {
     challengeKey: number;
   }
 >;
 
-export type EEReadAnswerMessage = ReceivedOpcodeMessage<Opcode.EEReadAnswer>;
+export type EEReadAnswerMessage = ReceivedOpcodeMessage<
+  IncomingOpcode.EEReadAnswer
+>;
 
 export type EEPROMWrite_StatusMessage = ReceivedOpcodeMessage<
-  Opcode.EEPROMWrite_Status,
+  IncomingOpcode.EEPROMWrite_Status,
   {
     code: EECode;
   }
 >;
 
 export type Challenge__NOP_MISO_PacketMessage = ReceivedOpcodeMessage<
-  Opcode.Challenge__NOP_MISO_Packet,
+  IncomingOpcode.Challenge__NOP_MISO_Packet,
   {
     key: number;
     invertedKey: number;
@@ -206,32 +225,34 @@ export type Challenge__NOP_MISO_PacketMessage = ReceivedOpcodeMessage<
 >;
 
 export type Diagnostics_AnswerMessage = ReceivedOpcodeMessage<
-  Opcode.Diagnostics_Answer
+  IncomingOpcode.Diagnostics_Answer
 >;
 
 export type OscCounterStart_AcknowledgeMessage = ReceivedOpcodeMessage<
-  Opcode.OscCounterStart_Acknowledge
+  IncomingOpcode.OscCounterStart_Acknowledge
 >;
 
 export type OscCounterStopAck_CounterValueMessage = ReceivedOpcodeMessage<
-  Opcode.OscCounterStopAck_CounterValue
+  IncomingOpcode.OscCounterStopAck_CounterValue
 >;
 
-export type StandbyAckMessage = ReceivedOpcodeMessage<Opcode.StandbyAck>;
+export type StandbyAckMessage = ReceivedOpcodeMessage<
+  IncomingOpcode.StandbyAck
+>;
 
 export type Error_frameMessage = ReceivedOpcodeMessage<
-  Opcode.Error_frame,
+  IncomingOpcode.Error_frame,
   {
     error: ErrorCode;
   }
 >;
 
 export type NothingToTransmitMessage = ReceivedOpcodeMessage<
-  Opcode.NothingToTransmit
+  IncomingOpcode.NothingToTransmit
 >;
 
 export type Ready_MessageMessage = ReceivedOpcodeMessage<
-  Opcode.Ready_Message,
+  IncomingOpcode.Ready_Message,
   {
     hwVersion: number;
     fwVersion: number;
@@ -309,26 +330,26 @@ export function parseData(data: Buffer): Messages {
     case Marker.Opcode:
       const opcode: Opcode = roll;
       switch (opcode) {
-        case Opcode.GET1:
-        case Opcode.GET2:
-        case Opcode.GET3:
-        case Opcode.MemoryRead:
-        case Opcode.EEPROMWrite:
-        case Opcode.EEChallengeAns:
-        case Opcode.EEReadChallenge:
-        case Opcode.NOP__Challenge:
-        case Opcode.DiagnosticDetails:
-        case Opcode.OscCounterStart:
-        case Opcode.OscCounterStop:
-        case Opcode.Reboot:
-        case Opcode.Standby:
+        case OutgoingOpcode.GET1:
+        case OutgoingOpcode.GET2:
+        case OutgoingOpcode.GET3:
+        case OutgoingOpcode.MemoryRead:
+        case OutgoingOpcode.EEPROMWrite:
+        case OutgoingOpcode.EEChallengeAns:
+        case OutgoingOpcode.EEReadChallenge:
+        case OutgoingOpcode.NOP__Challenge:
+        case OutgoingOpcode.DiagnosticDetails:
+        case OutgoingOpcode.OscCounterStart:
+        case OutgoingOpcode.OscCounterStop:
+        case OutgoingOpcode.Reboot:
+        case OutgoingOpcode.Standby:
           // TODO: Parse these instead of throwing
           throw new Error('This is data sent TO device...');
 
-        case Opcode.Get3Ready:
+        case IncomingOpcode.Get3Ready:
           throw new Error('Not yet implemented');
 
-        case Opcode.MemoryRead_Answer:
+        case IncomingOpcode.MemoryRead_Answer:
           return {
             crc,
             opcode,
@@ -337,17 +358,17 @@ export function parseData(data: Buffer): Messages {
             data1: data.readUInt16LE(2),
           };
 
-        case Opcode.EEPROMWrite_Challenge:
+        case IncomingOpcode.EEPROMWrite_Challenge:
           return { crc, opcode, marker, challengeKey: data.readUInt16LE(2) };
 
-        case Opcode.EEReadAnswer:
+        case IncomingOpcode.EEReadAnswer:
           return { crc, opcode, marker };
 
-        case Opcode.EEPROMWrite_Status:
+        case IncomingOpcode.EEPROMWrite_Status:
           const code: EECode = data[0];
           return { crc, opcode, marker, code };
 
-        case Opcode.Challenge__NOP_MISO_Packet:
+        case IncomingOpcode.Challenge__NOP_MISO_Packet:
           return {
             crc,
             opcode,
@@ -356,20 +377,20 @@ export function parseData(data: Buffer): Messages {
             invertedKey: data.readInt16LE(4),
           };
 
-        case Opcode.Diagnostics_Answer:
-        case Opcode.OscCounterStart_Acknowledge:
-        case Opcode.OscCounterStopAck_CounterValue:
-        case Opcode.StandbyAck:
+        case IncomingOpcode.Diagnostics_Answer:
+        case IncomingOpcode.OscCounterStart_Acknowledge:
+        case IncomingOpcode.OscCounterStopAck_CounterValue:
+        case IncomingOpcode.StandbyAck:
           throw new Error('Not yet implemented');
 
-        case Opcode.Error_frame:
+        case IncomingOpcode.Error_frame:
           const error: ErrorCode = data[0];
           return { crc, opcode, marker, error };
 
-        case Opcode.NothingToTransmit:
+        case IncomingOpcode.NothingToTransmit:
           return { crc, opcode, marker };
 
-        case Opcode.Ready_Message:
+        case IncomingOpcode.Ready_Message:
           return {
             crc,
             opcode,
