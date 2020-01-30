@@ -279,7 +279,7 @@ export function parseData(data: Buffer): Messages {
   const crc = CRC(data) == data[7];
 
   const marker: Marker = data[6] >> 6;
-  const roll = data[6] & 0b111111;
+  const rollOrOpcode = data[6] & 0b111111;
 
   // Only valid for "normal" messages
   const diagnosticStatus: DiagnosticStatus = data[1] >> 6;
@@ -288,7 +288,7 @@ export function parseData(data: Buffer): Messages {
     case Marker.Alpha:
       return {
         crc,
-        roll,
+        roll: rollOrOpcode,
         marker,
         vg: data[4],
         alpha: data.readUInt16LE(0) & 0x3fff,
@@ -297,7 +297,7 @@ export function parseData(data: Buffer): Messages {
     case Marker.AlphaBeta:
       return {
         crc,
-        roll,
+        roll: rollOrOpcode,
         marker,
         vg: data[4],
         alpha: data.readUInt16LE(0) & 0x3fff,
@@ -321,14 +321,14 @@ export function parseData(data: Buffer): Messages {
 
       return {
         crc,
-        roll,
+        roll: rollOrOpcode,
         marker,
         ...components,
         diagnosticStatus,
         computed: computeInternal(components),
       };
     case Marker.Opcode:
-      const opcode: Opcode = roll;
+      const opcode: Opcode = rollOrOpcode;
       switch (opcode) {
         case OutgoingOpcode.GET1:
         case OutgoingOpcode.GET2:
