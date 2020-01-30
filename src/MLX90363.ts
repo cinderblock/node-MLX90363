@@ -48,6 +48,11 @@ export const EEchallenge = [
    6368,  5907, 31384, 63325,  3562, 19816,  6995,  3147,
 ];
 
+/**
+ * Compute the CRC required for the first 7-bytes of an 8-byte Buffer.
+ * @param data 8-byte MLX Data buffer to compute CRC for
+ * @returns The crc byte that should be in data[7]
+ */
 export function CRC(data: Buffer) {
   if (data.length != 8) throw new Error('InvalidLength');
 
@@ -57,6 +62,13 @@ export function CRC(data: Buffer) {
   return ~crc & 0xff;
 }
 
+/**
+ * Marker to identify which type of message (Incoming or Outgoing) a particular block is.
+ *
+ * This is the primary differentiator for which "type" of message this actually is.
+ * Iff Opcode, 6 more bits define which "operation" is being sent (or received).
+ * Opcodes can be categorized into "incoming" data (into SPI Master) and "outgoing" data (from SPI Master).
+ */
 export enum Marker {
   Alpha,
   AlphaBeta,
@@ -106,18 +118,35 @@ export enum IncomingOpcode {
 
 export type Opcode = OutgoingOpcode | IncomingOpcode;
 
+/**
+ * Extra diagnostics bits that come with every packet
+ */
 export enum DiagnosticStatus {
   Init,
   Fail,
   Pass,
   PassNew,
 }
+
+/**
+ * Possible error codes
+ */
 export enum ErrorCode {
   IncorrectBitCount = 1,
   IncorrectCRC = 2,
+  /**
+   * Nothing to transmit.
+   *
+   * Presumably equivalent to IncomingOpcode.NothingToTransmit.
+   * Normal execution alternates between the two errors (if they are occurring regularly).
+   */
   NTT = 3,
   OpcodeNotValid = 4,
 }
+
+/**
+ * Error code
+ */
 export enum EECode {
   Success = 1,
   WriteFail = 2,
@@ -412,7 +441,11 @@ export type Packet = {
   data16?: (undefined | number)[];
 };
 
-export function makePacket(data: Packet) {
+/**
+ *
+ * @param data
+ */
+export function makePacket(data: Packet): Buffer {
   const ret = Buffer.alloc(8);
 
   const marker: Marker = data.marker ?? Marker.Opcode;
@@ -433,6 +466,9 @@ export function makePacket(data: Packet) {
   return ret;
 }
 
+/**
+ * Different possible mappings
+ */
 export enum MapXYZ {
   XYZ = 0,
   XZY = 1,
@@ -442,6 +478,11 @@ export enum MapXYZ {
   ZYX = 5,
 }
 
+/**
+ * Map {x, y, z} component values into [B1, B2, B3] values used in Alpha[Beta] Computations
+ * @param param0 {x, y, z} component readings
+ * @param map Which mapping to compute with. Defaults to MLX factory defaults
+ */
 export function mapXYZ(
   { x, y, z }: Components,
   map: MapXYZ = 0
@@ -464,8 +505,14 @@ export function mapXYZ(
   }
 }
 
+/**
+ * Internal scaling constants for AlphaBeta mode
+ */
 export type Constants = { kAlpha: number; kBeta: number; kT: number };
 
+/**
+ * Factory default values of AlphaBeta scaling constants
+ */
 export const defaultConstants: Constants = { kAlpha: 1.2, kBeta: 1.2, kT: 1 };
 
 /**
@@ -487,6 +534,11 @@ export function computeInternal(
   };
 }
 
+/**
+ * Scale an angle to some integer in the range [0,2**bits)
+ * @param angle Angle in radians
+ * @param bits Final number of bits to map one revolution to
+ */
 function scaleAngleToBits(angle: number, bits = 14): number {
   // Make sure we're in the positive range
   if (angle < 0) angle += Math.PI * 2;
@@ -498,12 +550,22 @@ function scaleAngleToBits(angle: number, bits = 14): number {
   return Math.floor(angle);
 }
 
+/**
+ * Compute what the Melexis would have computed internally given component values.
+ *
+ * B3 is ignored if provided
+ * @param param0 [B1, B2[, B3]] XYZ axes after mapping
+ */
 export function computeAlpha([B1, B2]:
   | [number, number]
   | [number, number, number]): number {
   return scaleAngleToBits(Math.atan2(B2, B1));
 }
 
+/**
+ * Compute what the Melexis would have computed internally given component values
+ * @param param0 [B1, B2, B3] - XYZ axes after mapping
+ */
 export function computeAlphaBeta(
   [B1, B2, B3]: [number, number, number],
   { kAlpha, kBeta, kT } = defaultConstants
