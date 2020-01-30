@@ -415,7 +415,7 @@ export type Packet = {
 export function makePacket(data: Packet) {
   const ret = Buffer.alloc(8);
 
-  const marker = data.marker === undefined ? Marker.Opcode : data.marker;
+  const marker: Marker = data.marker ?? Marker.Opcode;
 
   if (data.data8)
     data.data8.forEach((n, i) => {
