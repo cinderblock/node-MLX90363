@@ -389,7 +389,7 @@ export type NormalMessages = AlphaMessage | AlphaBetaMessage | XYZMessage;
 
 export type ReceivedOpcodeMessage<
   O extends IncomingOpcode,
-  T extends {} = {}
+  T extends {} = {},
 > = Message<Marker.Opcode, { opcode: O } & T>;
 
 export type MemoryRead_AnswerMessage = ReceivedOpcodeMessage<
@@ -407,9 +407,8 @@ export type EEPROMWrite_ChallengeMessage = ReceivedOpcodeMessage<
   }
 >;
 
-export type EEReadAnswerMessage = ReceivedOpcodeMessage<
-  IncomingOpcode.EEReadAnswer
->;
+export type EEReadAnswerMessage =
+  ReceivedOpcodeMessage<IncomingOpcode.EEReadAnswer>;
 
 export type EEPROMWrite_StatusMessage = ReceivedOpcodeMessage<
   IncomingOpcode.EEPROMWrite_Status,
@@ -426,21 +425,17 @@ export type Challenge__NOP_MISO_PacketMessage = ReceivedOpcodeMessage<
   }
 >;
 
-export type Diagnostics_AnswerMessage = ReceivedOpcodeMessage<
-  IncomingOpcode.Diagnostics_Answer
->;
+export type Diagnostics_AnswerMessage =
+  ReceivedOpcodeMessage<IncomingOpcode.Diagnostics_Answer>;
 
-export type OscCounterStart_AcknowledgeMessage = ReceivedOpcodeMessage<
-  IncomingOpcode.OscCounterStart_Acknowledge
->;
+export type OscCounterStart_AcknowledgeMessage =
+  ReceivedOpcodeMessage<IncomingOpcode.OscCounterStart_Acknowledge>;
 
-export type OscCounterStopAck_CounterValueMessage = ReceivedOpcodeMessage<
-  IncomingOpcode.OscCounterStopAck_CounterValue
->;
+export type OscCounterStopAck_CounterValueMessage =
+  ReceivedOpcodeMessage<IncomingOpcode.OscCounterStopAck_CounterValue>;
 
-export type StandbyAckMessage = ReceivedOpcodeMessage<
-  IncomingOpcode.StandbyAck
->;
+export type StandbyAckMessage =
+  ReceivedOpcodeMessage<IncomingOpcode.StandbyAck>;
 
 export type Error_frameMessage = ReceivedOpcodeMessage<
   IncomingOpcode.Error_frame,
@@ -449,9 +444,8 @@ export type Error_frameMessage = ReceivedOpcodeMessage<
   }
 >;
 
-export type NothingToTransmitMessage = ReceivedOpcodeMessage<
-  IncomingOpcode.NothingToTransmit
->;
+export type NothingToTransmitMessage =
+  ReceivedOpcodeMessage<IncomingOpcode.NothingToTransmit>;
 
 export type Ready_MessageMessage = ReceivedOpcodeMessage<
   IncomingOpcode.Ready_Message,
