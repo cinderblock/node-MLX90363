@@ -1,25 +1,55 @@
 {
-  "name": "mlx90363",
+  "name": "@cinderblock/mlx90363",
   "version": "0.0.0",
-  "description": "Node.js API for manipulating and parsing MLX90363 data packets",
-  "main": "dist/MLX90363.js",
-  "types": "dist/MLX90363.d.ts",
+  "description": "Node.js API for manipulating and parsing MLX90363 magnetic-rotary sensor data packets",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/MLX90363.d.ts",
+      "default": "./dist/MLX90363.js"
+    }
+  },
   "files": [
-    "dist/MLX90363.js",
-    "dist/MLX90363.d.ts"
+    "dist/",
+    "src/",
+    "!dist/**/*.test.*",
+    "!src/**/*.test.ts"
   ],
-  "repository": "https://github.com/cinderblock/node-MLX90363.git",
-  "author": "Cameron Tacklind <cameron@tacklind.com> (http://cameron.tacklind.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cinderblock/node-MLX90363.git"
+  },
+  "homepage": "https://github.com/cinderblock/node-MLX90363#readme",
+  "bugs": {
+    "url": "https://github.com/cinderblock/node-MLX90363/issues"
+  },
+  "keywords": [
+    "mlx90363",
+    "melexis",
+    "magnetic",
+    "rotary",
+    "sensor",
+    "spi"
+  ],
+  "author": "Cameron Tacklind <cameron@tacklind.com> (https://cameron.tacklind.com)",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepack": "npm run build",
+    "test": "npm run build && node --test dist/MLX90363.test.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "devDependencies": {
-    "@types/node": "^13.1.7",
-    "prettier": "^1.19.1",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.4"
-  },
-  "dependencies": {}
+    "@types/node": "^22.19.19",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  }
 }
