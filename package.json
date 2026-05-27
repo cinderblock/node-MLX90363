@@ -39,6 +39,7 @@
   "scripts": {
     "build": "tsc",
     "prepack": "npm run build",
+    "prepare": "test -d dist || npm run build",
     "test": "npm run build && node --test dist/MLX90363.test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
