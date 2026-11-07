@@ -724,8 +724,7 @@ function scaleAngleToBits(angle: number, bits = 14): number {
  * @param param0 [B1, B2[, B3]] XYZ axes after mapping
  */
 export function computeAlpha([B1, B2]:
-  | [number, number]
-  | [number, number, number]): number {
+  [number, number] | [number, number, number]): number {
   return scaleAngleToBits(Math.atan2(B2, B1));
 }
 
